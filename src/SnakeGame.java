@@ -10,7 +10,7 @@ public class SnakeGame {
 
     // --- 1. VARIABLES (Constants for Game Setup) ---
     // Define the dimensions of the game window
-    public static final int BOARD_WIDTH = 540;
+    public static final int BOARD_WIDTH = 518;
     public static final int BOARD_HEIGHT = 540;
 
     // Define the size of each grid unit (to be used in GamePanel)
