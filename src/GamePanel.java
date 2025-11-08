@@ -302,6 +302,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     direction = 'D'; //only allow down movement if not already going up
                 }
                 break;
+            case KeyEvent.VK_SPACE:
+                timer.stop();
+                startGame();
+                score = 0;
+                break;
         }
     }
 
