@@ -140,9 +140,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (snake.get(0).equals(food)) { //comparing snake head to food
             score++; //score incrementation
             placeFood(); //placeFood() call
+            timer.setDelay(timer.getDelay() - (score / 4));
 
             //by returning a boolean, this method can now be called inside of the moveSnake() method
-            //which then determines if the snake should discard its tail or not
+            //which then determines if the snake should discard it's tail or not
             //true when food is acquired
             return true;
         }
