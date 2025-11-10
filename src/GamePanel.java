@@ -282,22 +282,26 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // and update the 'direction' variable (U, D, L, R).
         // IMPORTANT: Prevent the snake from reversing direction instantly.
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT: 
+            case KeyEvent.VK_LEFT:
+            case KeyEvent.VK_A:
                 if (direction != 'R') {
                     direction = 'L'; //only allow left movement if not already going right
                 }
                 break;
-            case KeyEvent.VK_RIGHT: 
+            case KeyEvent.VK_RIGHT:
+            case KeyEvent.VK_D:
                 if (direction != 'L') {
                     direction = 'R'; //only allow right movement if not already going left
                 }
                 break;
-            case KeyEvent.VK_UP: 
+            case KeyEvent.VK_UP:
+            case KeyEvent.VK_W:
                 if (direction != 'D') {
                     direction = 'U'; //only allow up movement if not already going down
                 }
                 break;
             case KeyEvent.VK_DOWN:
+            case KeyEvent.VK_S:
                 if (direction != 'U') {
                     direction = 'D'; //only allow down movement if not already going up
                 }
