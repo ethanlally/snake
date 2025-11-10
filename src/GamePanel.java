@@ -89,22 +89,27 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // 1. Use the Random class to generate random x and y coordinates.
         // 2. Ensure the food location is within the board boundaries and is NOT on the snake.
         // 3. Create a new 'Point' object for the food.
-
-        //random x and y coordinate creation
         Random rand = new Random();
-        int randomX = rand.nextInt(20);
-        int randomY = rand.nextInt(20);
+        int randomX;
+        int randomY;
+        boolean valid;
 
-        //loop through snake and make sure that the randomly generated coordinates
-        //do not overlap with any of the snake nodes, and if they do, retry random generation
-        for (Point in : snake) {
-            if (new Point(randomX, randomY).equals(in)) {
-                placeFood();
+        //keep generating random coordinates until we find a valid location
+        do {
+            randomX = rand.nextInt(20);
+            randomY = rand.nextInt(20);
+            valid = true;
+
+            //check if this random overlaps with any part of the snake
+            for (Point in : snake) {
+                if (new Point(randomX, randomY).equals(in)) {
+                    valid = false;
+                    break; //no need to check further segments
+                }
             }
-        }
+        } while (!valid);
 
-        //if the method reaches this point, the random x and y coordinates should not be out of bounds
-        //or touching the snake; therefore, food can be assigned to these coordinates
+        // At this point, we have valid coordinates that don't overlap with the snake
         food = new Point(randomX, randomY);
     }
 
@@ -329,7 +334,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 }
                 break;
             case KeyEvent.VK_P:
-                //make sure game is not ended before pausing, doesn't make sense to pause, also bugs out other logic
+                //make sure game is not ended before pausing because doesn't make sense to pause,
+                //also bugs out other logic if pause is allowed to be pressed while the game is ended
                 if (!gameEnded) {
                     isRunning = !isRunning; //reverse isRunning state, if game is paused, don't keep the game running
                     isPaused = !isPaused; //reverse isPaused state
