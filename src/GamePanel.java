@@ -29,6 +29,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean isRunning;
     private char direction; // 'U', 'D', 'L', 'R'
     private int score;
+    private boolean isPaused;
+    private boolean gameEnded;
     
     // Timer for the game loop
     private Timer timer; 
@@ -70,6 +72,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         snake.add(new Point(1,9));
         direction = 'R';
         isRunning = true;
+        isPaused = false;
+        gameEnded = false;
         placeFood(); //initial food placed randomly
 
         //timer initialization, starts the game
@@ -140,7 +144,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (snake.get(0).equals(food)) { //comparing snake head to food
             score++; //score incrementation
             placeFood(); //placeFood() call
-            timer.setDelay(timer.getDelay() - (score / 4));
+            timer.setDelay(DELAY - (score * 2));
 
             //by returning a boolean, this method can now be called inside of the moveSnake() method
             //which then determines if the snake should discard it's tail or not
@@ -175,10 +179,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // When not running, stop the timer.
         if (!isRunning) {
             // STUDENTS: Stop the timer object.
+            gameEnded = true;
             timer.stop();
         }
     }
-
 
     // --- 8. USER-DEFINED METHOD: paintComponent() (Graphics) ---
     /** Swing method for drawing components. DO NOT call this directly; use repaint(). */
@@ -228,8 +232,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             // 4. Draw the Score.
             g.setColor(Color.WHITE); //set color to white
             g.drawString("Score: " + score, 10, 20); //simple scoreboard in top left corner of screen
-
-        } else {
+        }
+        else if (isPaused) {
+            g.setColor(new Color(0, 0, 0, 150)); //translucent background
+            //draw large paused on the screen
+            g.setColor(Color.YELLOW);
+            g.setFont(new Font("Arial", Font.BOLD, 40));
+            g.drawString("PAUSED", getWidth() / 2 - 100, getHeight() / 2);
+            //give instructions on how to resume
+            g.setFont(new Font("Arial", Font.PLAIN, 18));
+            g.drawString("Press P to resume", getWidth() / 2 - 95, getHeight() / 2 + 40);
+        }
+        else {
             // STUDENTS: Call the gameOver() method.
             gameOver(g);
         }
@@ -307,10 +321,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     direction = 'D'; //only allow down movement if not already going up
                 }
                 break;
-            case KeyEvent.VK_SPACE:
-                timer.stop();
-                startGame();
-                score = 0;
+            case KeyEvent.VK_SPACE: //when space is pressed, restart the game only if the game is not running
+                if (!isRunning && gameEnded) {
+                    timer.stop();
+                    startGame();
+                    score = 0;
+                }
+                break;
+            case KeyEvent.VK_P:
+                //make sure game is not ended before pausing, doesn't make sense to pause, also bugs out other logic
+                if (!gameEnded) {
+                    isRunning = !isRunning; //reverse isRunning state, if game is paused, don't keep the game running
+                    isPaused = !isPaused; //reverse isPaused state
+                }
                 break;
         }
     }
