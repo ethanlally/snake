@@ -20,14 +20,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     
     // Arrays/Collections to hold the snake's body segments
     // STUDENTS: You must use an ArrayList of your custom 'Point' Objects here.
-    private ArrayList<Point> snake;
+    private Snake snake;
     
     // Variables for food location and properties
     private Point food; 
     
     // Game state variables
     private boolean isRunning;
-    private char direction; // 'U', 'D', 'L', 'R'
     private int score;
     private boolean isPaused;
     private boolean gameEnded;
@@ -65,12 +64,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // 4. Call a method to place the first food item (placeFood()).
         // 5. Initialize and start the game timer.
 
-        //initialized snake with three nodes, starting in the middle left of the screen and facing towards the right
-        snake = new ArrayList<Point>();
-        snake.add(new Point(3,9));
-        snake.add(new Point(2,9));
-        snake.add(new Point(1,9));
-        direction = 'R';
+        //initialized snake with constructor, default starts in the middle left of screen and faces towards the right
+        snake = new Snake();
         isRunning = true;
         isPaused = false;
         gameEnded = false;
@@ -92,24 +87,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         Random rand = new Random();
         int randomX;
         int randomY;
-        boolean valid;
+        boolean overlap;
 
         //keep generating random coordinates until we find a valid location
         do {
             randomX = rand.nextInt(20);
             randomY = rand.nextInt(20);
-            valid = true;
 
             //check if this random overlaps with any part of the snake
-            for (Point in : snake) {
-                if (new Point(randomX, randomY).equals(in)) {
-                    valid = false;
-                    break; //no need to check further segments
-                }
-            }
-        } while (!valid);
+            overlap = snake.checkOverlap(new Point(randomX, randomY));
 
-        // At this point, we have valid coordinates that don't overlap with the snake
+        } while (overlap);
+
+        //at this point, we have valid coordinates that don't overlap with the snake
         food = new Point(randomX, randomY);
     }
 
@@ -121,10 +111,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // 1. Get the current head of the snake (the first element in the ArrayList).
         Point head = new Point(snake.get(0));
         // 2. Calculate the new x and y coordinates based on the 'direction' variable (U/D/L/R).
-        if (direction == 'U') {head.y -= 1;}
-        if (direction == 'D') {head.y += 1;}
-        if (direction == 'R') {head.x += 1;}
-        if (direction == 'L') {head.x -= 1;}
+        if (snake.getDirection() == 'U') {head.y -= 1;}
+        if (snake.getDirection() == 'D') {head.y += 1;}
+        if (snake.getDirection() == 'R') {head.x += 1;}
+        if (snake.getDirection() == 'L') {head.x -= 1;}
         // 3. Create a new 'Point' object for the new head.
         // 4. Add the new head to the front of the snake ArrayList.
         snake.add(0, head);
@@ -304,26 +294,26 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_LEFT:
             case KeyEvent.VK_A:
-                if (direction != 'R') {
-                    direction = 'L'; //only allow left movement if not already going right
+                if (snake.getDirection() != 'R') {
+                    snake.setDirection('L'); //only allow left movement if not already going right
                 }
                 break;
             case KeyEvent.VK_RIGHT:
             case KeyEvent.VK_D:
-                if (direction != 'L') {
-                    direction = 'R'; //only allow right movement if not already going left
+                if (snake.getDirection() != 'L') {
+                    snake.setDirection('R'); //only allow right movement if not already going left
                 }
                 break;
             case KeyEvent.VK_UP:
             case KeyEvent.VK_W:
-                if (direction != 'D') {
-                    direction = 'U'; //only allow up movement if not already going down
+                if (snake.getDirection() != 'D') {
+                    snake.setDirection('U'); //only allow up movement if not already going down
                 }
                 break;
             case KeyEvent.VK_DOWN:
             case KeyEvent.VK_S:
-                if (direction != 'U') {
-                    direction = 'D'; //only allow down movement if not already going up
+                if (snake.getDirection() != 'U') {
+                    snake.setDirection('D'); //only allow down movement if not already going up
                 }
                 break;
             case KeyEvent.VK_SPACE: //when space is pressed, restart the game only if the game is not running
@@ -351,4 +341,96 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     // Unused but required by the KeyListener interface
     @Override
     public void keyReleased(KeyEvent e) {}
+}
+
+/**
+ * Objectified version of the snake logic used for the game, allows for methods to be used in place of direct
+ * manipulation of the snake and its variables.
+ *
+ * @author Ethan Lally
+ */
+class Snake {
+    private ArrayList<Point> snake;
+    private char direction;
+
+    /**
+     * Default constructor for the snake class, sets up the snake in the default position,
+     * facing towards the right in the middle left of the screen.
+     */
+    public Snake() {
+        snake = new ArrayList<Point>();
+        snake.add(new Point(3,9));
+        snake.add(new Point(2,9));
+        snake.add(new Point(1,9));
+        direction = 'R';
+    }
+
+    /**
+     * Returns the direction the snake is currently facing.
+     *
+     * @return char representing snake direction
+     */
+    public char getDirection() {return direction;}
+
+    /**
+     * Sets the direction the snake will face.
+     *
+     * @param d char to set direction
+     * @return void
+     */
+    public void setDirection(char d) {direction = d;}
+
+    /**
+     * Wrapper for the ArrayList get method.
+     *
+     * @param i index of the point to return
+     * @return Point object stored at index i
+     * @throws IndexOutOfBoundsException
+     */
+    public Point get(int i) {
+        if (i < 0 || i >= snake.size()) {
+            throw new IndexOutOfBoundsException(); //honestly just wanted to do this for fun, it will never happen
+        }
+        return snake.get(i);
+    }
+
+    /**
+     * Wrapper for the ArrayList add method.
+     * @param i index to insert the Point p
+     * @param p Point to be added at index i
+     * @return void
+     */
+    public void add(int i, Point p) {snake.add(i, p);}
+
+    /**
+     * Wrapper for ArrayList size method.
+     *
+     * @return int representing the length of the snake
+     */
+    public int size() {return snake.size();}
+
+    /**
+     * Wrapper for the ArrayList remove method.
+     *
+     * @param i index to remove from snake
+     * @return Point representing point which was just removed
+     */
+    public Point remove(int i) {return snake.remove(i);}
+
+    /**
+     * Loops through the snake and checks if a given point overlaps any of the snake's points.
+     *
+     * @param p the Point to check overlap with the snake
+     * @return true if the point does overlap the snake, false otherwise
+     */
+    public boolean checkOverlap(Point p) {
+        boolean overlap = false;
+        for (Point in : snake) {
+            if (in.equals(p)) {
+                overlap = true;
+                break;
+            }
+        }
+        return overlap;
+    }
 }
