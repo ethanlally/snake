@@ -4,8 +4,8 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.*;
 import java.util.Random;
-import javax.swing.JPanel;
-import javax.swing.Timer; // Swing Timer for the game loop
+import javax.swing.*;
+import javax.swing.Timer;
 
 /**
  * The GamePanel handles all the game logic, drawing, and user input.
@@ -94,7 +94,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             randomX = rand.nextInt(20);
             randomY = rand.nextInt(20);
 
-            //check if this random overlaps with any part of the snake
+            //check if these random coordinates overlap with any part of the snake
             overlap = snake.checkOverlap(new Point(randomX, randomY));
 
         } while (overlap);
@@ -136,9 +136,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         //    a. Increment the score.
         //    b. DO NOT remove the tail (this makes the snake grow).
         //    c. Call placeFood() to generate a new food location.
-        if (snake.get(0).equals(food)) { //comparing snake head to food
+        if (snake.checkHead(food)) { //comparing snake head to food
             score++; //score incrementation
             placeFood(); //placeFood() call
+            //as score increases, slowly decrease the delay, therefore increasing the speed and difficulty
             timer.setDelay(DELAY - (score * 2));
 
             //by returning a boolean, this method can now be called inside of the moveSnake() method
@@ -165,7 +166,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         //    (Requires a LOOP to iterate through the body segments).
         // 3. If any collision occurs, set isRunning to false.
         for (int i = 1; i < snake.size() - 1; i++) { //loop through each snake body segment, so start at 1 instead of 0
-            if (head.equals(snake.get(i))) { //if collision detected
+            if (snake.checkHead(snake.get(i))) { //if collision detected
                 isRunning = false; //set isRunning to false
                 break; //exit loop since no need to keep looping when game will end regardless
             }
@@ -331,6 +332,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     isPaused = !isPaused; //reverse isPaused state
                 }
                 break;
+            case KeyEvent.VK_X: //when x is pressed, terminate the program
+                System.exit(0);
+                break; //not really needed since the program is terminated right above it, but oh well
         }
     }
 
@@ -358,7 +362,7 @@ class Snake {
      * facing towards the right in the middle left of the screen.
      */
     public Snake() {
-        snake = new ArrayList<Point>();
+        snake = new ArrayList<>();
         snake.add(new Point(3,9));
         snake.add(new Point(2,9));
         snake.add(new Point(1,9));
@@ -376,7 +380,6 @@ class Snake {
      * Sets the direction the snake will face.
      *
      * @param d char to set direction
-     * @return void
      */
     public void setDirection(char d) {direction = d;}
 
@@ -385,7 +388,7 @@ class Snake {
      *
      * @param i index of the point to return
      * @return Point object stored at index i
-     * @throws IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException if index out of bounds of Snake's ArrayList
      */
     public Point get(int i) {
         if (i < 0 || i >= snake.size()) {
@@ -396,9 +399,9 @@ class Snake {
 
     /**
      * Wrapper for the ArrayList add method.
+     *
      * @param i index to insert the Point p
      * @param p Point to be added at index i
-     * @return void
      */
     public void add(int i, Point p) {snake.add(i, p);}
 
@@ -433,4 +436,12 @@ class Snake {
         }
         return overlap;
     }
+
+    /**
+     * Checks the head of the snake is equal to the given point.
+     *
+     * @param p the Point to check overlap with the head of the snake
+     * @return true if the point overlaps the head, false otherwise
+     */
+    public boolean checkHead(Point p) {return snake.get(0).equals(p);}
 }
