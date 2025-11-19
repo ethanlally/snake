@@ -2,7 +2,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.*;
 import java.util.Random;
 import javax.swing.*;
 import javax.swing.Timer;
@@ -15,7 +14,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     // --- 1. VARIABLES ---
     // Use the constants defined in SnakeGame for dimensions
-    private final int BOARD_UNITS; // Total number of game units/squares on the board
+    //private final int BOARD_UNITS; // Total number of game units/squares on the board
     private final int UNIT_SIZE;   // Size of a single game unit (e.g., 25 pixels)
     
     // Arrays/Collections to hold the snake's body segments
@@ -30,6 +29,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private int score;
     private boolean isPaused;
     private boolean gameEnded;
+    private boolean showGrid;
     
     // Timer for the game loop
     private Timer timer; 
@@ -40,7 +40,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public GamePanel() {
         // Initialize constants
         UNIT_SIZE = SnakeGame.UNIT_SIZE;
-        BOARD_UNITS = (SnakeGame.BOARD_WIDTH * SnakeGame.BOARD_HEIGHT) / (UNIT_SIZE * UNIT_SIZE);
+        //BOARD_UNITS = (SnakeGame.BOARD_WIDTH * SnakeGame.BOARD_HEIGHT) / (UNIT_SIZE * UNIT_SIZE);
 
         // Set up the panel properties
         this.setPreferredSize(new Dimension(SnakeGame.BOARD_WIDTH, SnakeGame.BOARD_HEIGHT));
@@ -69,6 +69,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         isRunning = true;
         isPaused = false;
         gameEnded = false;
+        showGrid = true;
         placeFood(); //initial food placed randomly
 
         //timer initialization, starts the game
@@ -195,12 +196,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (isRunning) {
             // STUDENTS: 
             // 1. Optional: Draw the grid lines (requires a LOOP).
-            g.setColor(Color.BLUE); //set color to blue
-            for (int i = 0; i <= getWidth() / UNIT_SIZE; i++) { //loop through width at even intervals
-                g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, getHeight()); //draw lines spanning vertically
-            }
-            for (int i = 0; i <= getHeight() / UNIT_SIZE; i++) { //loop through length at even intervals
-                g.drawLine(0, i * UNIT_SIZE, getWidth(), i * UNIT_SIZE); //draw lines spanning horizontally
+            if (showGrid) {
+                g.setColor(Color.BLUE); //set color to blue
+                for (int i = 0; i <= getWidth() / UNIT_SIZE; i++) { //loop through width at even intervals
+                    g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, getHeight()); //draw lines spanning vertically
+                }
+                for (int i = 0; i <= getHeight() / UNIT_SIZE; i++) { //loop through length at even intervals
+                    g.drawLine(0, i * UNIT_SIZE, getWidth(), i * UNIT_SIZE); //draw lines spanning horizontally
+                }
             }
 
             // 2. Draw the Food (set color, use g.fillOval or g.fillRect).
@@ -331,10 +334,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     isRunning = !isRunning; //reverse isRunning state, if game is paused, don't keep the game running
                     isPaused = !isPaused; //reverse isPaused state
                 }
+                repaint(); //trigger repaint early to update screen immediately
                 break;
             case KeyEvent.VK_X: //when x is pressed, terminate the program
                 System.exit(0);
                 break; //not really needed since the program is terminated right above it, but oh well
+            case KeyEvent.VK_G: //when g is pressed, toggle whether grid shows or not
+                showGrid = !showGrid; //flip showGrid boolean
+                repaint(); //trigger repaint early to update grid visibility on the spot
+                break;
         }
     }
 
